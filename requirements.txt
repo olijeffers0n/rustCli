@@ -1,0 +1,6 @@
+Flask
+push-receiver
+requests
+urllib3
+easygui
+http-ece
