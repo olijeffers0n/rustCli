@@ -5,11 +5,12 @@ import sys
 import threading
 from uuid import uuid4
 
-import easygui
+# import easygui
 import requests
 import urllib3
 from flask import Flask, render_template, request
-from push_receiver.push_receiver import listen, gcm_register, fcm_register
+from push_receiver import PushReceiver
+from push_receiver.android_fcm_register import AndroidFCM
 
 # Dealing with hiding the messages :)
 cli = sys.modules["flask.cli"]
@@ -21,6 +22,12 @@ flask_logger.setLevel(logging.ERROR)
 push_receiver_logger = logging.getLogger("push_receiver")
 push_receiver_logger.setLevel(logging.ERROR)
 
+API_KEY = "AIzaSyB5y2y-Tzqb4-I4Qnlsh_9naYv_TD8pCvY"
+PROJECT_ID = "rust-companion-app"
+GCM_SENDER_ID = "976529667804"
+GMS_APP_ID = "1:976529667804:android:d6f1ddeb4403b338fea619"
+ANDROID_PACKAGE_NAME = "com.facepunch.rust.companion"
+ANDROID_PACKAGE_CERT = "E28D05345FB78A7A1A63D70F4A302DBF426CA5AD"
 
 def get_config_file():
     return (
@@ -51,15 +58,15 @@ class RustCli:
         with open(file, "w") as outputFile:
             json.dump(data, outputFile, indent=4, sort_keys=True)
 
-    def get_expo_push_token(self, credentials):
+    def get_expo_push_token(self, token):
 
         response = requests.post(
             "https://exp.host/--/api/v2/push/getExpoPushToken",
             data={
-                "deviceId": self.uuid,
-                "experienceId": "@facepunch/RustCompanion",
+                "deviceId": uuid4(),
+                "projectId": "49451aca-a822-41e6-ad59-955718d0ff9c",
                 "appId": "com.facepunch.rust.companion",
-                "deviceToken": credentials["fcm"]["token"],
+                "deviceToken": token,
                 "type": "fcm",
                 "development": False,
             },
@@ -73,7 +80,7 @@ class RustCli:
             {
                 "AuthToken": auth_token,
                 "DeviceId": "rustplus.py",
-                "PushKind": 0,
+                "PushKind": 3,
                 "PushToken": expo_push_token,
             }
         ).encode("utf-8")
@@ -87,11 +94,11 @@ class RustCli:
 
     def client_view(self):
 
-        if self.chrome_path is None:
-            self.chrome_path = easygui.fileopenbox()
+        # if self.chrome_path is None:
+        #     self.chrome_path = easygui.fileopenbox()
 
         os.system(
-            '"{}" -incognito http://localhost:3000 --disable-web-security --disable-popup-blocking '
+            'google-chrome -incognito http://localhost:3000 --disable-web-security --disable-popup-blocking '
             "--disable-site-isolation-trials --user-data-dir={}".format(
                 self.chrome_path, self.get_user_data_directory()
             )
@@ -122,15 +129,6 @@ class RustCli:
 
         return self.token
 
-    def register_with_fcm(self, sender_id):
-
-        app_id = "wp:receiver.push.com#{}".format(self.uuid)
-        subscription = gcm_register(appId=app_id, retries=50)
-        fcm = fcm_register(sender_id=sender_id, token=subscription["token"])
-        res = {"gcm": subscription}
-        res.update(fcm)
-        return res
-
     def fcm_register(self):
 
         try:
@@ -140,7 +138,8 @@ class RustCli:
             self.chrome_path = None
 
         print("Registering with FCM")
-        fcm_credentials = self.register_with_fcm(976529667804)
+        fcm_credentials = AndroidFCM.register(API_KEY, PROJECT_ID, GCM_SENDER_ID, GMS_APP_ID, ANDROID_PACKAGE_NAME,
+                                              ANDROID_PACKAGE_CERT)
 
         print("Registered with FCM")
 
@@ -149,7 +148,7 @@ class RustCli:
         expo_push_token = None
 
         try:
-            expo_push_token = self.get_expo_push_token(fcm_credentials)
+            expo_push_token = self.get_expo_push_token(fcm_credentials["fcm"]["token"])
         except Exception:
             print("Failed to fetch Expo Push Token")
             quit()
@@ -209,9 +208,7 @@ class RustCli:
 
         print("Listening...")
 
-        listen(
-            credentials=credentials["fcm_credentials"], callback=self.on_notification
-        )
+        PushReceiver(credentials["fcm_credentials"]).listen(callback=self.on_notification)
 
 
 if __name__ == "__main__":

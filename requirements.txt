@@ -1,5 +1,5 @@
 Flask
-push-receiver
+rustpluspushreceiver
 requests
 urllib3
 easygui
