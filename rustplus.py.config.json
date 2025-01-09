@@ -1,0 +1,14 @@
+{
+    "chrome_path": null,
+    "expo_push_token": "ExponentPushToken[T3suTuH-NQCAqmeK-zzh4C]",
+    "fcm_credentials": {
+        "fcm": {
+            "token": "ck-kgt2dwKc:APA91bEKuVwq-w5folCOxOmOD3Ks13rTWNTq02qSOsXKn5hK_s-gRGF098AWaJvefpH8UkQmZwzLJQjRIGzG3zLtB2D52-b8Y0UPrE8BeM4Irl5Nf9G-kow"
+        },
+        "gcm": {
+            "androidId": "4935595081581200975",
+            "securityToken": "662962358748637085"
+        }
+    },
+    "rustplus_auth_token": ""
+}

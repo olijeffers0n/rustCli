@@ -11,6 +11,8 @@ import urllib3
 from flask import Flask, render_template, request
 from push_receiver import PushReceiver
 from push_receiver.android_fcm_register import AndroidFCM
+import webbrowser
+
 
 # Dealing with hiding the messages :)
 cli = sys.modules["flask.cli"]
@@ -93,16 +95,8 @@ class RustCli:
         )
 
     def client_view(self):
-
-        # if self.chrome_path is None:
-        #     self.chrome_path = easygui.fileopenbox()
-
-        os.system(
-            'google-chrome -incognito http://localhost:3000 --disable-web-security --disable-popup-blocking '
-            "--disable-site-isolation-trials --user-data-dir={}".format(
-                self.chrome_path, self.get_user_data_directory()
-            )
-        )
+        c = webbrowser.get()
+        c.open_new("http://localhost:3000")
 
     def link_steam_with_rust_plus(self):
 
