@@ -1,14 +1,14 @@
 {
-    "chrome_path": null,
-    "expo_push_token": "ExponentPushToken[ryjtNaE3s8acm_CGN4vvCg]",
+    "chrome_path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "expo_push_token": "ExponentPushToken[XYq7pLDH9kwyy4pzlPQvaQ]",
     "fcm_credentials": {
         "fcm": {
-            "token": "clS5-KF59OQ:APA91bGxda1d6WCPyEBTLpMGebtXDqGvxofogx5LCLE41uOu2_Lha5pVjqtL1WkRgM8hqt-Kjett-6EJ4uiwvfCguOi1mfqjH5zo3dFn2YdSj8FLJq6fRmY"
+            "token": "eRdSJqM849o:APA91bHTgDTAwZO2d5Og3RIpkyjbn1WjE4t_zZSlOyVMhHjaeY8_XodCnnFu5Z5QvmsbFKE3gm7icLY3QAM395io8HSsxJT26nPw0fXb97-eN-LuiV6T6jg"
         },
         "gcm": {
-            "androidId": "5470088910828734906",
-            "securityToken": "3668725932528214381"
+            "androidId": "4691524551581807250",
+            "securityToken": "820828897145073061"
         }
     },
-    "rustplus_auth_token": ""
+    "rustplus_auth_token": "eyJzdGVhbUlkIjoiNzY1NjExOTc5NjA4MzExOTQiLCJ2ZXJzaW9uIjowLCJpc3MiOjE3MzY0MjM1MDAsImV4cCI6MTczNzYzMzEwMH0=.sWA5yXcLV/y3hKDBJ2LVfuhA/vjSmmBh8hluZO7lVxhCAPLO1gvrRjaVDG922S+yqHz1MFm9+RhvKmhZ+ai7Cg=="
 }

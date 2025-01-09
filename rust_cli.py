@@ -11,8 +11,8 @@ import urllib3
 from flask import Flask, render_template, request
 from push_receiver import PushReceiver
 from push_receiver.android_fcm_register import AndroidFCM
+from sys import platform
 import webbrowser
-
 
 # Dealing with hiding the messages :)
 cli = sys.modules["flask.cli"]
@@ -41,7 +41,7 @@ class RustCli:
     def __init__(self) -> None:
         self.token = ""
         self.uuid = uuid4()
-        self.chrome_path = None
+        self.chrome_path = ""
 
     @staticmethod
     def get_user_data_directory():
@@ -95,15 +95,30 @@ class RustCli:
         )
 
     def client_view(self):
-        try:
-            c = webbrowser.get('chromium')
-        except webbrowser.Error:
-            print("Looks like you don't have google chrome installed. We this to run the pairing with Rust+! Please install Google Chrome, Restart your PC and try again")
-            exit(-1)
-        c.args.append("--disable-web-security")
-        print(c.args)
-        c.open_new("http://localhost:3000")
+        if(self.chrome_path == ""):
+            if(platform == "linux"):
+                self.chrome_path = "/usr/bin/google-chrome-stable"
+            elif(platform == "darwin"):
+                self.chrome_path = "/Applications/Google Chrome"
+            elif(platform == "win32"):
+                self.chrome_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+            else:
+                print("We are not sure where Google Chrome is installed. Please add the path to the rustplus.py.config.json which is in the current directory under variable chrome_path. Thanks!")
+                exit(-1)
 
+        webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(self.chrome_path))
+        web = webbrowser.get('chrome')
+        
+        web.args.append("--incognito")
+        web.args.append("--disable-web-security")
+        web.args.append("--disable-popup-blocking")
+        web.args.append("--disable-site-isolation-trials")
+        web.args.append("--user-data-dir="+ self.get_user_data_directory())
+        print(web.args)
+        web.open_new_tab("http://localhost:3000")
+        #os.system(
+        #    self.chrome_path+" --incognito http://localhost:3000 --disable-web-security --disable-popup-blocking --disable-site-isolation-trials 
+        #    )
 
 
     def link_steam_with_rust_plus(self):
