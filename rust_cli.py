@@ -118,12 +118,8 @@ class RustCli:
         web.args.append("--disable-popup-blocking")
         web.args.append("--disable-site-isolation-trials")
         web.args.append("--user-data-dir="+ self.get_user_data_directory())
-        print(web.args)
+       
         web.open_new_tab("http://localhost:3000")
-        #os.system(
-        #    self.chrome_path+" --incognito http://localhost:3000 --disable-web-security --disable-popup-blocking --disable-site-isolation-trials 
-        #    )
-
 
     def link_steam_with_rust_plus(self):
 
