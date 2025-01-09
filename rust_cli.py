@@ -9,10 +9,12 @@ from uuid import uuid4
 import requests
 import urllib3
 from flask import Flask, render_template, request
+from werkzeug.serving import make_server
 from push_receiver import PushReceiver
 from push_receiver.android_fcm_register import AndroidFCM
 from sys import platform
 import webbrowser
+from queue import Queue
 
 # Dealing with hiding the messages :)
 cli = sys.modules["flask.cli"]
@@ -99,7 +101,6 @@ class RustCli:
 
     def client_view(self):
         if(self.chrome_path == None or self.chrome_path == ""):
-            print("woof2")
             if(platform == "linux"):
                 self.chrome_path = "/usr/bin/google-chrome-stable"
             elif(platform == "darwin"):
@@ -118,11 +119,9 @@ class RustCli:
         web.args.append("--disable-popup-blocking")
         web.args.append("--disable-site-isolation-trials")
         web.args.append("--user-data-dir="+ self.get_user_data_directory())
-        print(web.args)
+
         web.open_new_tab("http://localhost:3000")
-        #os.system(
-        #    self.chrome_path+" --incognito http://localhost:3000 --disable-web-security --disable-popup-blocking --disable-site-isolation-trials 
-        #    )
+       
 
 
     def link_steam_with_rust_plus(self):
@@ -139,16 +138,17 @@ class RustCli:
         @app.route("/callback")
         def callback():
             self.token = request.args["token"]
-            try:
-                request.environ.get("werkzeug.server.shutdown")()
-            except:
-                pass
-
+            q.put(self.token)
             return "All Done!"
-
-        app.run(port=3000)
-
-        return self.token
+       
+        q = Queue()
+        s = make_server("localhost", 3000, app)
+        t = threading.Thread(target=s.serve_forever)
+        t.start()
+        token = q.get(block=True)  
+        s.shutdown()
+        t.join()
+        return token
 
     def fcm_register(self):
 
