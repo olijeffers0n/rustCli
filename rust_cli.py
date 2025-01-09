@@ -45,7 +45,10 @@ class RustCli:
 
     @staticmethod
     def get_user_data_directory():
-        return str(os.path.dirname(os.path.realpath(__file__))) + "\\ChromeData"
+        if(platform == "darwin"):
+            return str(os.path.dirname(os.path.realpath(__file__))) + "/ChromeData"
+        else:
+            return str(os.path.dirname(os.path.realpath(__file__))) + "\\ChromeData"
 
     @staticmethod
     def read_config(file):
@@ -99,13 +102,14 @@ class RustCli:
             if(platform == "linux"):
                 self.chrome_path = "/usr/bin/google-chrome-stable"
             elif(platform == "darwin"):
-                self.chrome_path = "/Applications/Google Chrome"
+                self.chrome_path = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
             elif(platform == "win32"):
                 self.chrome_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
             else:
                 print("We are not sure where Google Chrome is installed. Please add the path to the rustplus.py.config.json which is in the current directory under variable chrome_path. Thanks!")
                 exit(-1)
 
+        print("it is:"+self.chrome_path)
         webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(self.chrome_path))
         web = webbrowser.get('chrome')
         
