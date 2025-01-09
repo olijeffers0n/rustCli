@@ -95,8 +95,16 @@ class RustCli:
         )
 
     def client_view(self):
-        c = webbrowser.get()
+        try:
+            c = webbrowser.get('chromium')
+        except webbrowser.Error:
+            print("Looks like you don't have google chrome installed. We this to run the pairing with Rust+! Please install Google Chrome, Restart your PC and try again")
+            exit(-1)
+        c.args.append("--disable-web-security")
+        print(c.args)
         c.open_new("http://localhost:3000")
+
+
 
     def link_steam_with_rust_plus(self):
 

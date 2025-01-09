@@ -1,13 +1,13 @@
 {
     "chrome_path": null,
-    "expo_push_token": "ExponentPushToken[T3suTuH-NQCAqmeK-zzh4C]",
+    "expo_push_token": "ExponentPushToken[ryjtNaE3s8acm_CGN4vvCg]",
     "fcm_credentials": {
         "fcm": {
-            "token": "ck-kgt2dwKc:APA91bEKuVwq-w5folCOxOmOD3Ks13rTWNTq02qSOsXKn5hK_s-gRGF098AWaJvefpH8UkQmZwzLJQjRIGzG3zLtB2D52-b8Y0UPrE8BeM4Irl5Nf9G-kow"
+            "token": "clS5-KF59OQ:APA91bGxda1d6WCPyEBTLpMGebtXDqGvxofogx5LCLE41uOu2_Lha5pVjqtL1WkRgM8hqt-Kjett-6EJ4uiwvfCguOi1mfqjH5zo3dFn2YdSj8FLJq6fRmY"
         },
         "gcm": {
-            "androidId": "4935595081581200975",
-            "securityToken": "662962358748637085"
+            "androidId": "5470088910828734906",
+            "securityToken": "3668725932528214381"
         }
     },
     "rustplus_auth_token": ""

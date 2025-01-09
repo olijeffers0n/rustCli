@@ -35,7 +35,7 @@
 
                     // parse json message
                     var auth = JSON.parse(message);
-
+                    alert("We got a token");
                     // send the Token back to pair.js in the main window
                     window.location.href = "http://localhost:3000/callback?token=" + encodeURIComponent(auth.Token);
 
