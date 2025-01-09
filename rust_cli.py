@@ -98,7 +98,8 @@ class RustCli:
         )
 
     def client_view(self):
-        if(self.chrome_path == ""):
+        if(self.chrome_path == None or self.chrome_path == ""):
+            print("woof2")
             if(platform == "linux"):
                 self.chrome_path = "/usr/bin/google-chrome-stable"
             elif(platform == "darwin"):
@@ -109,10 +110,9 @@ class RustCli:
                 print("We are not sure where Google Chrome is installed. Please add the path to the rustplus.py.config.json which is in the current directory under variable chrome_path. Thanks!")
                 exit(-1)
 
-        print("it is:"+self.chrome_path)
         webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(self.chrome_path))
         web = webbrowser.get('chrome')
-        
+
         web.args.append("--incognito")
         web.args.append("--disable-web-security")
         web.args.append("--disable-popup-blocking")
