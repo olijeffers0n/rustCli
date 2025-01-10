@@ -62,7 +62,7 @@ class RustCli:
 
     @staticmethod
     def update_config(file, data):
-        with open(file, "w") as outputFile:
+        with open(file, "a") as outputFile:
             json.dump(data, outputFile, indent=4, sort_keys=True)
 
     def get_expo_push_token(self, token):
@@ -211,11 +211,43 @@ class RustCli:
 
     def on_notification(self, obj, notification, data_message):
 
-        print(
-            json.dumps(
-                json.loads(notification["data"]["body"]), indent=4, sort_keys=True
-            )
+        print(notification)
+        obj = json.loads(notification["body"])
+
+        playerID = obj["playerId"]
+        playerToken = obj["playerToken"]
+        serverName = obj["name"]
+        serverDescription = obj["desc"]
+        serverImg = obj["img"]
+        serverIP = obj["ip"]
+        serverPort = obj["port"]
+
+        print("PlayerID is:"+playerID)
+        print("Player Token is:"+playerToken)
+        print("Server name is:"+serverName)
+        print("Server Description is:"+serverDescription)
+        print("Server Image is:"+serverImg)
+        print("Server IP is:"+serverIP)
+        print("Server Port is:"+serverPort)
+
+        # save to config
+        config_file = get_config_file()
+        self.update_config(
+            config_file,
+            {
+                "playerID": playerID,
+                "playerToken": playerToken,
+                "serverName": serverName,
+                "serverDescription": serverDescription,
+                "serverImg":serverImg,
+                "serverIP":serverIP,
+                "serverPort":serverPort
+            },
         )
+
+        print("All paired server information has been saved" + config_file)
+
+        sys.exit(0)
 
     def fcm_listen(self):
 
@@ -226,7 +258,7 @@ class RustCli:
             print("Config File doesn't exist! Run 'register' first")
             quit()
 
-        print("Listening...")
+        print("Listening...Go join your server, hit Rust+ in the Rust game menu and click Pair!")
 
         PushReceiver(credentials["fcm_credentials"]).listen(callback=self.on_notification)
 
