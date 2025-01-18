@@ -62,7 +62,7 @@ class RustCli:
 
     @staticmethod
     def update_config(file, data):
-        with open(file, "a") as outputFile:
+        with open(file, "w") as outputFile:
             json.dump(data, outputFile, indent=4, sort_keys=True)
 
     def get_expo_push_token(self, token):
@@ -197,18 +197,58 @@ class RustCli:
 
         # save to config
         config_file = get_config_file()
-        self.update_config(
-            config_file,
-            {
-                "fcm_credentials": fcm_credentials,
-                "expo_push_token": expo_push_token,
-                "rustplus_auth_token": rustplus_auth_token,
-                "chrome_path": self.chrome_path,
-            },
-        )
+        self.update_config_file(self,config_file,fcm_credentials,expo_push_token,rustplus_auth_token,self.chrome_path)
+        
 
         print("FCM, Expo and Rust+ auth tokens have been saved to " + config_file)
 
+    @staticmethod
+    def update_config_file(self,config_file,fcm_credentials="",expo_push_token="",rustplus_auth_token="",chrome_path="",playerId="",playerToken="",serverName="",serverDescription="",serverImg="",serverIP="",serverPort=""):
+        print("inside new func")
+        json = self.read_config(config_file)
+       
+        print("existing file has:")
+        print(json)
+        
+        if(fcm_credentials!= ""):
+            json["fcm_credentials"] = fcm_credentials
+        
+        if(expo_push_token!=""):
+            json["expo_push_token"] = expo_push_token
+
+        if(rustplus_auth_token!=""):
+            json["rustplus_auth_token"] = rustplus_auth_token
+
+        if(chrome_path!=""):
+            json["chrome_path"] = chrome_path
+
+        if(playerId!=""):
+            json["playerId"] = playerId
+
+        if(playerToken!=""):
+            json["playerToken"] = playerToken
+
+        if(serverName!=""):
+            json["serverName"] = serverName
+
+        if(serverDescription!=""):
+            json["serverDescription"] = serverDescription
+
+        if(serverImg!=""):
+            json["serverImg"] = serverImg
+
+        if(serverIP!=""):
+            json["serverIP"] = serverIP
+        
+        if(serverPort!=""):
+            json["serverPort"] = serverPort
+
+        self.update_config(
+            config_file,json
+        )
+
+
+    
     def on_notification(self, obj, notification, data_message):
 
         print(notification)
@@ -232,18 +272,8 @@ class RustCli:
 
         # save to config
         config_file = get_config_file()
-        self.update_config(
-            config_file,
-            {
-                "playerID": playerID,
-                "playerToken": playerToken,
-                "serverName": serverName,
-                "serverDescription": serverDescription,
-                "serverImg":serverImg,
-                "serverIP":serverIP,
-                "serverPort":serverPort
-            },
-        )
+        self.update_config_file(self,config_file,"","","","",playerID,playerToken,serverName,serverDescription,serverImg,serverIP,serverPort)
+           
 
         print("All paired server information has been saved" + config_file)
 
