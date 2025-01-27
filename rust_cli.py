@@ -9,8 +9,12 @@ from uuid import uuid4
 import requests
 import urllib3
 from flask import Flask, render_template, request
+from werkzeug.serving import make_server
 from push_receiver import PushReceiver
 from push_receiver.android_fcm_register import AndroidFCM
+from sys import platform
+import webbrowser
+from queue import Queue
 
 # Dealing with hiding the messages :)
 cli = sys.modules["flask.cli"]
@@ -39,11 +43,14 @@ class RustCli:
     def __init__(self) -> None:
         self.token = ""
         self.uuid = uuid4()
-        self.chrome_path = None
+        self.chrome_path = ""
 
     @staticmethod
     def get_user_data_directory():
-        return str(os.path.dirname(os.path.realpath(__file__))) + "\\ChromeData"
+        if(platform == "darwin"):
+            return str(os.path.dirname(os.path.realpath(__file__))) + "/ChromeData"
+        else:
+            return str(os.path.dirname(os.path.realpath(__file__))) + "\\ChromeData"
 
     @staticmethod
     def read_config(file):
@@ -93,16 +100,28 @@ class RustCli:
         )
 
     def client_view(self):
+        if(self.chrome_path == None or self.chrome_path == ""):
+            if(platform == "linux"):
+                self.chrome_path = "/usr/bin/google-chrome-stable"
+            elif(platform == "darwin"):
+                self.chrome_path = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            elif(platform == "win32"):
+                self.chrome_path = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+            else:
+                print("We are not sure where Google Chrome is installed. Please add the path to the rustplus.py.config.json which is in the current directory under variable chrome_path. Thanks!")
+                exit(-1)
 
-        # if self.chrome_path is None:
-        #     self.chrome_path = easygui.fileopenbox()
+        webbrowser.register('chrome', None,webbrowser.BackgroundBrowser(self.chrome_path))
+        web = webbrowser.get('chrome')
 
-        os.system(
-            'google-chrome -incognito http://localhost:3000 --disable-web-security --disable-popup-blocking '
-            "--disable-site-isolation-trials --user-data-dir={}".format(
-                self.chrome_path, self.get_user_data_directory()
-            )
-        )
+        web.args.append("--incognito")
+        web.args.append("--disable-web-security")
+        web.args.append("--disable-popup-blocking")
+        web.args.append("--disable-site-isolation-trials")
+        web.args.append("--user-data-dir="+ self.get_user_data_directory())
+   
+        web.open_new_tab("http://localhost:3000")
+
 
     def link_steam_with_rust_plus(self):
 
@@ -118,16 +137,17 @@ class RustCli:
         @app.route("/callback")
         def callback():
             self.token = request.args["token"]
-            try:
-                request.environ.get("werkzeug.server.shutdown")()
-            except:
-                pass
-
+            q.put(self.token)
             return "All Done!"
-
-        app.run(port=3000)
-
-        return self.token
+       
+        q = Queue()
+        s = make_server("localhost", 3000, app)
+        t = threading.Thread(target=s.serve_forever)
+        t.start()
+        token = q.get(block=True)  
+        s.shutdown()
+        t.join()
+        return token
 
     def fcm_register(self):
 
@@ -191,11 +211,24 @@ class RustCli:
 
     def on_notification(self, obj, notification, data_message):
 
-        print(
-            json.dumps(
-                json.loads(notification["data"]["body"]), indent=4, sort_keys=True
-            )
-        )
+        print(notification)
+        obj = json.loads(notification["body"])
+
+        player_id = obj.get("playerId")
+        player_token = obj.get("playerToken")
+        server_name = obj.get("name")
+        server_description = obj.get("desc")
+        server_img = obj.get("img")
+        server_ip = obj.get("ip")
+        server_port = obj.get("port")
+
+        print(f"PlayerID is: {player_id}")
+        print(f"Player Token is: {player_token}")
+        print(f"Server name is: {server_name}")
+        print(f"Server Description is: {server_description}")
+        print(f"Server Image is: {server_img}")
+        print(f"Server IP is: {server_ip}")
+        print(f"Server Port is: {server_port}")
 
     def fcm_listen(self):
 
@@ -206,7 +239,7 @@ class RustCli:
             print("Config File doesn't exist! Run 'register' first")
             quit()
 
-        print("Listening...")
+        print("Listening... Go join your server, hit Rust+ in the Rust game menu and click Pair!")
 
         PushReceiver(credentials["fcm_credentials"]).listen(callback=self.on_notification)
 
