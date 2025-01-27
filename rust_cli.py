@@ -197,87 +197,38 @@ class RustCli:
 
         # save to config
         config_file = get_config_file()
-        self.update_config_file(self,config_file,fcm_credentials,expo_push_token,rustplus_auth_token,self.chrome_path)
-        
+        self.update_config(
+            config_file,
+            {
+                "fcm_credentials": fcm_credentials,
+                "expo_push_token": expo_push_token,
+                "rustplus_auth_token": rustplus_auth_token,
+                "chrome_path": self.chrome_path,
+            },
+        )
 
         print("FCM, Expo and Rust+ auth tokens have been saved to " + config_file)
 
-    @staticmethod
-    def update_config_file(self,config_file,fcm_credentials="",expo_push_token="",rustplus_auth_token="",chrome_path="",playerId="",playerToken="",serverName="",serverDescription="",serverImg="",serverIP="",serverPort=""):
-        print("inside new func")
-        json = self.read_config(config_file)
-       
-        print("existing file has:")
-        print(json)
-        
-        if(fcm_credentials!= ""):
-            json["fcm_credentials"] = fcm_credentials
-        
-        if(expo_push_token!=""):
-            json["expo_push_token"] = expo_push_token
-
-        if(rustplus_auth_token!=""):
-            json["rustplus_auth_token"] = rustplus_auth_token
-
-        if(chrome_path!=""):
-            json["chrome_path"] = chrome_path
-
-        if(playerId!=""):
-            json["playerId"] = playerId
-
-        if(playerToken!=""):
-            json["playerToken"] = playerToken
-
-        if(serverName!=""):
-            json["serverName"] = serverName
-
-        if(serverDescription!=""):
-            json["serverDescription"] = serverDescription
-
-        if(serverImg!=""):
-            json["serverImg"] = serverImg
-
-        if(serverIP!=""):
-            json["serverIP"] = serverIP
-        
-        if(serverPort!=""):
-            json["serverPort"] = serverPort
-
-        self.update_config(
-            config_file,json
-        )
-
-
-    
     def on_notification(self, obj, notification, data_message):
 
         print(notification)
         obj = json.loads(notification["body"])
 
-        playerID = obj["playerId"]
-        playerToken = obj["playerToken"]
-        serverName = obj["name"]
-        serverDescription = obj["desc"]
-        serverImg = obj["img"]
-        serverIP = obj["ip"]
-        serverPort = obj["port"]
+        player_id = obj.get("playerId")
+        player_token = obj.get("playerToken")
+        server_name = obj.get("name")
+        server_description = obj.get("desc")
+        server_img = obj.get("img")
+        server_ip = obj.get("ip")
+        server_port = obj.get("port")
 
-        print("PlayerID is:"+playerID)
-        print("Player Token is:"+playerToken)
-        print("Server name is:"+serverName)
-        print("Server Description is:"+serverDescription)
-        print("Server Image is:"+serverImg)
-        print("Server IP is:"+serverIP)
-        print("Server Port is:"+serverPort)
-
-        # save to config
-        config_file = get_config_file()
-        self.update_config_file(self,config_file,"","","","",playerID,playerToken,serverName,serverDescription,serverImg,serverIP,serverPort)
-           
-
-        print("All paired server information has been saved" + config_file)
-
-        sys.exit(0)
+        print(f"PlayerID is: {player_id}")
+        print(f"Player Token is: {player_token}")
+        print(f"Server name is: {server_name}")
+        print(f"Server Description is: {server_description}")
+        print(f"Server Image is: {server_img}")
+        print(f"Server IP is: {server_ip}")
+        print(f"Server Port is: {server_port}")
 
     def fcm_listen(self):
 
@@ -288,7 +239,7 @@ class RustCli:
             print("Config File doesn't exist! Run 'register' first")
             quit()
 
-        print("Listening...Go join your server, hit Rust+ in the Rust game menu and click Pair!")
+        print("Listening... Go join your server, hit Rust+ in the Rust game menu and click Pair!")
 
         PushReceiver(credentials["fcm_credentials"]).listen(callback=self.on_notification)
 
